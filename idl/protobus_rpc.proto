@@ -45,11 +45,16 @@ message Status {
   string message = 2;
 }
 
-message Topics {
+message SubscriptionOptions {
+  int32 history_depth = 1;
+}
+
+message SubscriptionRequest {
   repeated string topics = 1;
+  SubscriptionOptions options = 2;
 }
 
 service ProtobusService {
   rpc Publish(stream EncapsulatedEvent) returns (Status) {}
-  rpc Subscribe(Topics) returns (stream EncapsulatedEvent) {}
+  rpc Subscribe(SubscriptionRequest) returns (stream EncapsulatedEvent) {}
 }
