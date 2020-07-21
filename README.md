@@ -46,3 +46,13 @@ To limit process resources, a bounded thread pool is used. Since both publishers
 --store FILE_PREFIX=REGEX   Store topics matching the regular expression into a file with the given prefix (default: one file per topic). May be specified multiple times.
 --max-threads N             Serve up to N channels; this limits the active publishers, subscriptions, and file writers (default: 101).
 ```
+
+## Technological choices & limitations
+
+The project is currently in a prototyping stage. The following choices have been made to minimise effort to reach an MVP:
+
+- Google Protocol Buffers as serialisation framework (even though it adds considerable allocation overhead by design)
+- gRPC as transport protocol (even though its HTTP transport add considerable overhead and complexity)
+- Python 3 as implementation language (even though its current gRPC implementation lacks parallelism)
+
+The combination of these choices will likely limit the performance of the MVP to the order of 10,000 messages/s. For all of these technologies, more efficient alternatives exist—at a later stage, these will be considered.
