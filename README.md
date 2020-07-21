@@ -35,3 +35,14 @@ To keep the system simple we explicitly do *not* aim to support enterprise featu
 - persistent storage is handled via the same mechanism: for each configured partition, a queue is setup with an associated writer thread
 
 To limit process resources, a bounded thread pool is used. Since both publishers and subscribers may be long-lived processes, the size of the thread pool limits the maximum number of topics the server may handle.
+
+## Running
+
+`protobus-server` may be started with the following options:
+
+```
+--address [ADDRESS][:PORT]  Listen address. If ADDRESS is omitted, listen on all interfaces (default: listen on port 42000 on all local interfaces).
+--store-root PATH           Common prefix for the persistent data store, relative to the current working directory (default: current working directory).
+--store FILE_PREFIX=REGEX   Store topics matching the regular expression into a file with the given prefix (default: one file per topic). May be specified multiple times.
+--max-threads N             Serve up to N channels; this limits the active publishers, subscriptions, and file writers (default: 101).
+```
