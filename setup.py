@@ -14,7 +14,7 @@ for idl_file in idl_files:
     for suffix in "_pb2.py", "_pb2_grpc.py":
         path = idl_file.replace(idl_in, idl_out).replace(".proto", suffix)
         if not os.path.exists(path) or os.stat(path).st_mtime < idl_mtime:
-            cmd = f"mkdir -p {idl_out} && {sys.executable} -m grpc_tools.protoc -I{idl_in} --python_out={idl_out} --grpc_python_out={idl_out} {os.path.join(idl_in, '*.proto')}"
+            cmd = f"{sys.executable} -m grpc_tools.protoc -I{idl_in} --python_out={idl_out} --grpc_python_out={idl_out} {os.path.join(idl_in, '*.proto')}"
             print(f"Please regenerate the interface files (requires the grpcio-tools package):", file=sys.stderr)
             print(cmd, file=sys.stderr)
             sys.exit(1)
