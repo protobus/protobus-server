@@ -51,7 +51,7 @@ class ProtobusService(protobus_rpc_pb2_grpc.ProtobusServiceServicer):
             if i % 1 == 0:
                 print(f"{event.client_event_time.seconds}.{event.client_event_time.nanos:09d}({1000 * dt:+.1f} ms)"
                       f"{event.topic} {','.join(f'{k}={v}' for k, v in event.tags.items())}"
-                      f"{event.payload.type_url} [{event.payload_size}]", file=sys.stderr))
+                      f"{event.payload.type_url} [{event.payload_size}]", file=sys.stderr)
 
             for regex, queue in self.queues:
                 if regex.match(event.topic):
