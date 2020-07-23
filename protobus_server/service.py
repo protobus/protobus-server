@@ -37,7 +37,7 @@ def write_to_store(queue, dest_pattern):
         if event is None:
             break
 
-        dest_name = dest_pattern.replace("{topic}", event.topic)
+        dest_name = dest_pattern.replace("{topic}", event.topic) + ".pb"
         dest_file = files.get(dest_name, None)
         if dest_file is None:
             dest_file = open(dest_name, 'ba')
@@ -55,7 +55,7 @@ class ProtobusService(protobus_rpc_pb2_grpc.ProtobusServiceServicer):
         self.queues = []
 
         for store_pattern in store_patterns:
-            dest_pattern, regex = store_pattern.split("=")
+            dest_pattern, regex = store_pattern.split(":")
             dest_pattern = os.path.join(store_root, dest_pattern)
             regex = re.compile(regex)
             queue = Queue()

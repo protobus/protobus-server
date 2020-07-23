@@ -36,14 +36,24 @@ def main():
 
     parser = argparse.ArgumentParser(description=description)
 
-    parser.add_argument("--address", default="localhost:42000")
-    parser.add_argument("--store-root", default=os.path.curdir)
-    parser.add_argument("--store", nargs='+', default=["{topic}.log=.*"])
-    parser.add_argument("--max-threads", type=int, default=101)
+    parser.add_argument("--address", default="localhost:42000", metavar="ADDRESS:PORT",
+                        help="bind address; if ADDRESS is omitted, listen on all interfaces "
+                        "(default: listen on port 42000 on all local interfaces).")
+    parser.add_argument("--store-root", default=os.path.curdir, metavar="PATH",
+                        help="common prefix for the persistent data store, relative to the current "
+                        "working directory (default: current working directory).")
+    parser.add_argument("--store-pattern", nargs='+', default=["{topic}.log:.*"],
+                        metavar="FILE_PREFIX:TOPIC_REGEX",
+                        help="store topics matching the regular expression into a file with the "
+                        "given prefix (default: one file per topic). May be specified multiple "
+                        "times.")
+    parser.add_argument("--max-threads", type=int, default=101, metavar='N',
+                        help="serve up to N channels; this limits the active publishers, "
+                        "subscriptions, and file writers (default: 101).")
 
     args = parser.parse_args()
 
     serve(address=args.address,
           thread_pool_workers=args.max_threads,
           store_root=args.store_root,
-          store_patterns=args.store)
+          store_patterns=args.store_pattern)

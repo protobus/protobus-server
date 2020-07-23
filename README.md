@@ -41,10 +41,12 @@ To limit process resources, a bounded thread pool is used. Since both publishers
 `protobus-server` may be started with the following options:
 
 ```
---address [ADDRESS][:PORT]  Listen address. If ADDRESS is omitted, listen on all interfaces (default: listen on port 42000 on all local interfaces).
---store-root PATH           Common prefix for the persistent data store, relative to the current working directory (default: current working directory).
---store FILE_PREFIX=REGEX   Store topics matching the regular expression into a file with the given prefix (default: one file per topic). May be specified multiple times.
---max-threads N             Serve up to N channels; this limits the active publishers, subscriptions, and file writers (default: 101).
+--address ADDRESS:PORT
+                      bind address; if ADDRESS is omitted, listen on all interfaces (default: listen on port 42000 on all local interfaces).
+--store-root PATH     common prefix for the persistent data store, relative to the current working directory (default: current working directory).
+--store-pattern FILE_PREFIX:TOPIC_REGEX [FILE_PREFIX:TOPIC_REGEX ...]
+                      store topics matching the regular expression into a file with the given prefix (default: one file per topic). May be specified multiple times.
+--max-threads N       serve up to N channels; this limits the active publishers, subscriptions, and file writers (default: 101).
 ```
 
 ## Technological choices & limitations
