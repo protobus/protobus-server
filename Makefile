@@ -8,7 +8,7 @@ idl:
 	python3 -m grpc_tools.protoc -Iidl/ --python_out=protobus_server/idl/ --grpc_python_out=protobus_server/idl/ idl/*.proto
 
 package: clean idl lint
-	@$(if $(git status --porcelaina),,echo ERROR: Refusing to package dirty repository && exit 1)
+	@$(if $(git status --porcelain),echo ERROR: Refusing to package dirty repository && exit 1,)
 	python3 setup.py sdist bdist_wheel
 
 develop:
