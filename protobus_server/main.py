@@ -15,6 +15,7 @@
 """Entry point for the protobus-server executable."""
 
 import argparse
+import logging
 import os
 import sys
 
@@ -36,6 +37,8 @@ def main():
 
     parser = argparse.ArgumentParser(description=description)
 
+    parser.add_argument('--log-level', default='INFO',
+                        choices=('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'))
     parser.add_argument("--address", default="localhost:42000", metavar="ADDRESS:PORT",
                         help="bind on ADDRESS and listen for gRPC connections on PORT; if ADDRESS "
                         "is omitted, listen on all interfaces (default: listen on port 42000 on "
@@ -56,7 +59,9 @@ def main():
 
     args = parser.parse_args()
 
-    serve(address=args.address,
-          thread_pool_workers=args.max_threads,
-          store_root=os.path.join(os.path.curdir, args.store_root),
-          store_patterns=args.store_pattern)
+    logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', level=args.log_level)
+
+    return serve(address=args.address,
+                 thread_pool_workers=args.max_threads,
+                 store_root=os.path.join(os.path.curdir, args.store_root),
+                 store_patterns=args.store_pattern)

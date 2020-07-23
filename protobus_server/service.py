@@ -15,11 +15,11 @@
 """Provides the main protobus service."""
 
 from concurrent.futures import ThreadPoolExecutor
+import logging
 import os
 from queue import Queue
 import re
 import struct
-import sys
 
 import grpc
 
@@ -40,6 +40,7 @@ def write_to_store(queue, dest_pattern):
         dest_name = dest_pattern.replace("{topic}", event.topic) + ".pb"
         dest_file = files.get(dest_name, None)
         if dest_file is None:
+            logging.info("opening store file %s", dest_name)
             dest_file = open(dest_name, 'ba')
             files[dest_name] = dest_file
 
@@ -55,6 +56,8 @@ class ProtobusService(protobus_rpc_pb2_grpc.ProtobusServiceServicer):
         self.queues = []
 
         for store_pattern in store_patterns:
+            logging.info("adding store pattern %s", store_pattern)
+
             dest_pattern, regex = store_pattern.split(":")
             dest_pattern = os.path.join(store_root, dest_pattern)
             regex = re.compile(regex)
@@ -67,16 +70,18 @@ class ProtobusService(protobus_rpc_pb2_grpc.ProtobusServiceServicer):
         """Streaming interface which publishes protobus EncapsulatedEvent messages.
         See idl files for details."""
 
-        for i, event in enumerate(request_iterator):
+        for event in request_iterator:
             event.server_receive_time.GetCurrentTime()
             event.payload_size = event.payload.ByteSize()
 
-            delta = timedelta(event.client_event_time, event.server_receive_time)
-            if i % 1 == 0:
-                print(f"{event.client_event_time.seconds}.{event.client_event_time.nanos:09d}"
-                      f"({1000 * delta:+.1f} ms) "
-                      f"{event.topic} {','.join(f'{k}={v}' for k, v in event.tags.items())} "
-                      f"{event.payload.type_url} [{event.payload_size}]", file=sys.stderr)
+            logging.debug("publish client_time:%d.%09d(%+.1f ms) topic:%s tags:%s type:%s size:%d",
+                          event.client_event_time.seconds,
+                          event.client_event_time.nanos,
+                          1000 * timedelta(event.client_event_time, event.server_receive_time),
+                          event.topic,
+                          ','.join(f'{k}={v}' for k, v in event.tags.items()),
+                          event.payload.type_url,
+                          event.payload_size)
 
             for regex, queue in self.queues:
                 if regex.match(event.topic):
@@ -106,11 +111,11 @@ class ProtobusService(protobus_rpc_pb2_grpc.ProtobusServiceServicer):
 
 def serve(address, thread_pool_workers, store_root, store_patterns):
     """Sets up a concurrency thread pool and starts the gRPC service with the given store
-    configuration."""
+    configuration. Returns a suitable exit code."""
 
     if not os.path.isdir(store_root):
-        print("Store root does not exist.", file=sys.stderr)
-        sys.exit(1)
+        logging.error("store root %s does not exist", store_root)
+        return 1
 
     pool = ThreadPoolExecutor(max_workers=thread_pool_workers)
 
@@ -119,13 +124,16 @@ def serve(address, thread_pool_workers, store_root, store_patterns):
 
     protobus_rpc_pb2_grpc.add_ProtobusServiceServicer_to_server(service, server)
 
+    logging.info("starting service on %s", address)
     server.add_insecure_port(address)
     server.start()
 
     try:
         server.wait_for_termination()
     except KeyboardInterrupt:
-        print("Shutting down...", file=sys.stderr)
+        logging.info("shutting down")
         server.stop(1)  # Stop with 1 s grace period
         server.wait_for_termination()
         service.stop()
+
+    return 0
