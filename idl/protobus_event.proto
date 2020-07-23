@@ -21,14 +21,29 @@ import "google/protobuf/timestamp.proto";
 
 option cc_enable_arenas = true;
 
+// Content-agnostic payload wrapper which adds some metadata for observability and quick filtering
+// during later analysis
 message EncapsulatedEvent {
+  // The topic to which the message was published
   string topic = 1;
+
+  // An unsorted map of tags
   map<string, string> tags = 2;
 
+  // The client-specified time of the event
   google.protobuf.Timestamp client_event_time = 3;
+
+  // The time the message was published according to the client library
   google.protobuf.Timestamp client_transmit_time = 4;
+
+  // The time the message was received (and then redistributed) according to the server
   google.protobuf.Timestamp server_receive_time = 5;
 
+  // Byte size of the encoded payload (incl. overhead of the Any type)
   int64 payload_size = 6;
+
+  // Payload wrapped in an Any type; refer to the Protocol Buffers docs & sources for details:
+  // https://developers.google.com/protocol-buffers/docs/proto3#any
+  // https://github.com/protocolbuffers/protobuf/blob/master/src/google/protobuf/any.proto
   google.protobuf.Any payload = 7;
 }

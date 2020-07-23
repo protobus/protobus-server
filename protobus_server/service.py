@@ -86,7 +86,7 @@ class ProtobusService(protobus_rpc_pb2_grpc.ProtobusServiceServicer):
 
     def Subscribe(self, request, _):  # pylint: disable=invalid-name
         """Streaming interface which returns all EncapsulatedEvent messages matching the
-        given SubscribeRequest."""
+        given SubscriptionRequest."""
 
         def cleanup():
             self.queues.remove((regex, queue))

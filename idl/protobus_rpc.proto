@@ -20,6 +20,8 @@ import "protobus_event.proto";
 
 option cc_enable_arenas = true;
 
+// List of possible status codes - taken from the richer error model recommended in the gRPC
+// documentation, cf. https://grpc.io/docs/guides/error/
 enum Code {
   OK = 0;
   CANCELLED = 1;
@@ -40,21 +42,34 @@ enum Code {
   DATA_LOSS = 15;
 }
 
+// Return status
 message Status {
+  // Status code, see Code enum above for possible values
   int32 code = 1;
+
+  // Developer-facing message
   string message = 2;
 }
 
+// Options for a subscription
 message SubscriptionOptions {
+  // Number of historic messages requested for each matching topic
   int32 history_depth = 1;
 }
 
 message SubscriptionRequest {
+  // List of regular expressions used to match topics
   repeated string topics = 1;
+
+  // Additional options for this subscription
   SubscriptionOptions options = 2;
 }
 
+// The main protobus publish/subscribe service
 service ProtobusService {
+  // Publish a stream of events
   rpc Publish(stream EncapsulatedEvent) returns (Status) {}
+
+  // Subscribe to a stream of events
   rpc Subscribe(SubscriptionRequest) returns (stream EncapsulatedEvent) {}
 }
