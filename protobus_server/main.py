@@ -37,23 +37,26 @@ def main():
     parser = argparse.ArgumentParser(description=description)
 
     parser.add_argument("--address", default="localhost:42000", metavar="ADDRESS:PORT",
-                        help="bind address; if ADDRESS is omitted, listen on all interfaces "
-                        "(default: listen on port 42000 on all local interfaces).")
-    parser.add_argument("--store-root", default=os.path.curdir, metavar="PATH",
-                        help="common prefix for the persistent data store, relative to the current "
-                        "working directory (default: current working directory).")
-    parser.add_argument("--store-pattern", nargs='+', default=["{topic}.log:.*"],
+                        help="bind on ADDRESS and listen for gRPC connections on PORT; if ADDRESS "
+                        "is omitted, listen on all interfaces (default: listen on port 42000 on "
+                        "local interfaces)")
+    parser.add_argument("--store-root", default="", metavar="PATH",
+                        help="use PATH for the destination of the persistent data store; PATH is "
+                        "considered relative to the current working directory (which is also the "
+                        "default destination)")
+    parser.add_argument("--store-pattern", nargs='+', default=["{topic}:.*"],
                         metavar="FILE_PREFIX:TOPIC_REGEX",
                         help="store topics matching the regular expression into a file with the "
-                        "given prefix (default: one file per topic). May be specified multiple "
-                        "times.")
+                        "given prefix (default: one file per topic); any occurence of {topic} in "
+                        "FILE_PREFIX will be replaced with the actual message topic; the argument "
+                        "may be specified multiple times")
     parser.add_argument("--max-threads", type=int, default=101, metavar='N',
                         help="serve up to N channels; this limits the active publishers, "
-                        "subscriptions, and file writers (default: 101).")
+                        "subscriptions, and file writers (default: 101)")
 
     args = parser.parse_args()
 
     serve(address=args.address,
           thread_pool_workers=args.max_threads,
-          store_root=args.store_root,
+          store_root=os.path.join(os.path.curdir, args.store_root),
           store_patterns=args.store_pattern)

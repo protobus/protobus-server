@@ -36,17 +36,30 @@ To keep the system simple we explicitly do *not* aim to support enterprise featu
 
 To limit process resources, a bounded thread pool is used. Since both publishers and subscribers may be long-lived processes, the size of the thread pool limits the maximum number of topics the server may handle.
 
-## Running
+## Installation
 
-`protobus-server` may be started with the following options:
+The latest version of protobus-server is published on the [Python package index](https://pypi.org/project/protobus-server/). You may use `pip3` to install or upgrade to the latest version:
 
 ```
+pip3 install --user --upgrade protobus-server
+```
+
+If the location of the `protobus-server` executable is not in your shell's `PATH` environment variable, `pip` will emit a warning informing you where it has been installed. You can either launch `protobus-server` using its full path or add the parent `bin` directory to `PATH`.
+
+## Usage
+
+`protobus-server` may be started with the following arguments:
+
+```
+-h, --help            show this help message and exit
+--log-level {DEBUG,INFO,WARNING,ERROR,CRITICAL}
 --address ADDRESS:PORT
-                      bind address; if ADDRESS is omitted, listen on all interfaces (default: listen on port 42000 on all local interfaces).
---store-root PATH     common prefix for the persistent data store, relative to the current working directory (default: current working directory).
+                      bind on ADDRESS and listen for gRPC connections on PORT; if ADDRESS is omitted, listen on all interfaces (default: listen on port 42000 on local interfaces)
+--store-root PATH     use PATH for the destination of the persistent data store; PATH is considered relative to the current working directory (which is also the default destination)
 --store-pattern FILE_PREFIX:TOPIC_REGEX [FILE_PREFIX:TOPIC_REGEX ...]
-                      store topics matching the regular expression into a file with the given prefix (default: one file per topic). May be specified multiple times.
---max-threads N       serve up to N channels; this limits the active publishers, subscriptions, and file writers (default: 101).
+                      store topics matching the regular expression into a file with the given prefix (default: one file per topic); any occurence of {topic} in FILE_PREFIX will be
+                      replaced with the actual message topic; the argument may be specified multiple times
+--max-threads N       serve up to N channels; this limits the active publishers, subscriptions, and file writers (default: 101)
 ```
 
 ## Technological choices & limitations
