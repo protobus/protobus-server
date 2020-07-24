@@ -14,5 +14,5 @@
 
 """A minimalistic daemon providing a partitioned log message bus."""
 
-__version__ = "0.1.3"
+__version__ = "0.1.4"
 __description__ = __doc__.splitlines()[0]
